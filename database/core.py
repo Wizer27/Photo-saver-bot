@@ -1,5 +1,5 @@
 from sqlalchemy import select,exc 
-from database.models import metadata_obj,table
+from models import metadata_obj,table
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from datetime import datetime,timedelta
 from typing import List,Optional
@@ -33,4 +33,13 @@ AsyncSessionLocal = sessionmaker(
 async def create_table():
     async with async_engine.begin() as conn:
         await conn.run_sync(metadata_obj.create_all)
+
+async def get_all_data() -> List:
+    async with AsyncSession(async_engine) as conn:
+        try:
+            stmt = select(table)
+            res = await conn.execute(stmt)
+            return list(res.fetchall())
+        except exc.SQLAlchemyError:
+            raise exc.SQLAlchemyError("Error while executing")
 
