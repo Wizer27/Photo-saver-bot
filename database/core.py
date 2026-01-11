@@ -44,4 +44,22 @@ async def get_all_data() -> List:
             raise exc.SQLAlchemyError("Error while executing")
 
 async def create_user(user_id:str) -> bool:
-    pass
+    async with AsyncSession(async_engine) as conn:
+        async with conn.begin():
+            try:
+                stmt = table.insert().values(
+                    username = user_id,
+                    sub = False
+                )
+                await conn.execute(stmt)
+            except exc.SQLAlchemyError:
+                raise exc.SQLAlchemyError("Error while executing")
+
+async def subscribe(username:str):
+    async with AsyncSession(async_engine) as conn:
+        async with conn.begin():
+            try:
+                stmt = table.update().where(table.c.username == username).values(sub = True)
+                await conn.execute(stmt)
+            except exc.SQLAlchemyError:
+                raise exc.SQLAlchemyError("Error while executing")
