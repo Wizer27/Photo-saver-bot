@@ -63,3 +63,15 @@ async def subscribe(username:str):
                 await conn.execute(stmt)
             except exc.SQLAlchemyError:
                 raise exc.SQLAlchemyError("Error while executing")
+
+async def is_user_subbed(username:str) -> bool:
+    async with AsyncSession(async_engine) as conn:
+        try:
+            stmt = select(table.c.sub).where(table.c.username == username)
+            res = await conn.execute(stmt)
+            data = res.scalar_one_or_none()
+            if data is not None:
+                return data
+            raise NameError("User not found") # поидеи никогда не произойдет 
+        except exc.SQLAlchemyError as conn:
+            raise exc.SQLAlchemyError("Error while executing")            
