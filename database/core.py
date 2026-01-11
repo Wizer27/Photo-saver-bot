@@ -43,3 +43,5 @@ async def get_all_data() -> List:
         except exc.SQLAlchemyError:
             raise exc.SQLAlchemyError("Error while executing")
 
+async def create_user(user_id:str) -> bool:
+    pass
