@@ -40,5 +40,12 @@ async def get_all_data() -> List:
             return list(res.fetchall())
         except exc.SQLAlchemyError:
             raise exc.SQLAlchemyError("Error while executing")
-        
+
+async def create_file(usename:str,file_name:str,filedata:str):
+    async with AsyncSession(async_engine) as conn:
+        async with conn.begin():
+            try:
+                pass
+            except exc.SQLAlchemyError:
+                raise exc.SQLAlchemyError("Error while executing")       
         
