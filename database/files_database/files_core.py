@@ -1,5 +1,5 @@
 from sqlalchemy import select,exc 
-from files_models import metadata_obj,table
+from files_models import metadata_obj,files_table
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from datetime import datetime,timedelta
 from typing import List,Optional
@@ -35,17 +35,22 @@ async def create_table():
 async def get_all_data() -> List:
     async with AsyncSession(async_engine) as conn:
         try:
-            stmt = select(table)
+            stmt = select(files_table)
             res = await conn.execute(stmt)
             return list(res.fetchall())
         except exc.SQLAlchemyError:
             raise exc.SQLAlchemyError("Error while executing")
 
-async def create_file(usename:str,file_name:str,filedata:str):
+async def create_file(username:str,file_name:str,filedata:str):
     async with AsyncSession(async_engine) as conn:
         async with conn.begin():
             try:
-                pass
+                stmt = files_table.insert().values(
+                    username = username,
+                    filedata = filedata,
+                    filename = file_name
+                )
+                await conn.execute(stmt)
             except exc.SQLAlchemyError:
                 raise exc.SQLAlchemyError("Error while executing")       
         
