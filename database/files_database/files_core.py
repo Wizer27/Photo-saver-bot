@@ -41,16 +41,39 @@ async def get_all_data() -> List:
         except exc.SQLAlchemyError:
             raise exc.SQLAlchemyError("Error while executing")
 
-async def create_file(username:str,file_name:str,filedata:str):
+async def is_file_exists(file_id:str) -> bool:
+    async with AsyncSession(async_engine) as conn:
+        try:
+            stmt = select(files_table.c.username).where(files_table.c.filedata == file_id)
+            res = await conn.execute(stmt)
+            data = res.scalar_one_or_none()
+            if data is not None:
+                return True
+            return False
+        except exc.SQLAlchemyError:
+            raise exc.SQLAlchemyError("Error while executing")         
+
+async def create_file(username:str,file_name:str,fileid:str):
     async with AsyncSession(async_engine) as conn:
         async with conn.begin():
             try:
                 stmt = files_table.insert().values(
                     username = username,
-                    filedata = filedata,
+                    filedata = fileid,
                     filename = file_name
                 )
                 await conn.execute(stmt)
             except exc.SQLAlchemyError:
                 raise exc.SQLAlchemyError("Error while executing")       
-        
+  
+async def delete_file(file_id:str) -> bool:
+    if not await is_file_exists(file_id):
+        return False     
+    async with AsyncSession(async_engine) as conn:
+        async with conn.begin():
+            try:
+                stmt = files_table.delete(files_table).where(files_table.c.filedata == file_id)
+                await conn.execute(stmt)
+                return True
+            except exc.SQLAlchemyError:
+                raise exc.SQLAlchemyError("Error while executing")
