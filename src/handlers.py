@@ -8,6 +8,17 @@ from keyboards import main_keyborad
 
 router = Router()
 
+@router.message(CommandStart)
+async def start_handler(message:Message):
+    user_id = message.from_user.id
+    user_ex = await is_user_exists(user_id)
+    if not user_ex:
+        await create_user(user_id)
+        await message.answer(f"Welcome {message.from_user.username}",reply_markup=main_keyborad)
+    await message.answer(f"Welcome {message.from_user.username}",reply_markup=main_keyborad)    
+        
+
 @router.message(F.text == "Profile")
 async def profile_handler(message:Message):
     pass
+

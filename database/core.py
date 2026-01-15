@@ -96,4 +96,5 @@ async def is_user_subbed(username:str) -> bool:
             raise exc.SQLAlchemyError("Error while executing")            
 
 
+
         

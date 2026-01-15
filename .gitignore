@@ -5,3 +5,4 @@ env/
 venv/
 database/.env
 database/files_database/.env
+src/.env
