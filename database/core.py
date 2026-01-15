@@ -14,6 +14,8 @@ import uuid
 
 load_dotenv()
 
+
+
 async_engine = create_async_engine(
     f"postgresql+asyncpg://{os.getenv("DB_USER")}:{os.getenv("DB_PASSWORD")}@localhost:5432/photo_saver_def",
     pool_size=20,           
@@ -43,7 +45,21 @@ async def get_all_data() -> List:
         except exc.SQLAlchemyError:
             raise exc.SQLAlchemyError("Error while executing")
 
+async def is_user_exists(username:str) -> bool:
+    async with AsyncSession(async_engine) as conn:
+        try:
+            stmt = select(table.c.username).where(table.c.username == username)
+            res = await conn.execute(stmt)
+            data = res.scalar_one_or_none()
+            if data is not None:
+                return data == username
+            return False
+        except exc.SQLAlchemyError:
+            raise exc.SQLAlchemyError("Error while executing")        
+
 async def create_user(user_id:str) -> bool:
+    if await is_user_exists(user_id):
+        return False 
     async with AsyncSession(async_engine) as conn:
         async with conn.begin():
             try:
@@ -55,12 +71,15 @@ async def create_user(user_id:str) -> bool:
             except exc.SQLAlchemyError:
                 raise exc.SQLAlchemyError("Error while executing")
 
-async def subscribe(username:str):
+async def subscribe(username:str) -> bool:
+    if not await is_user_exists(username):
+        return False
     async with AsyncSession(async_engine) as conn:
         async with conn.begin():
             try:
                 stmt = table.update().where(table.c.username == username).values(sub = True)
                 await conn.execute(stmt)
+                return True
             except exc.SQLAlchemyError:
                 raise exc.SQLAlchemyError("Error while executing")
 
@@ -75,3 +94,6 @@ async def is_user_subbed(username:str) -> bool:
             raise NameError("User not found") # поидеи никогда не произойдет 
         except exc.SQLAlchemyError as conn:
             raise exc.SQLAlchemyError("Error while executing")            
+
+
+        
