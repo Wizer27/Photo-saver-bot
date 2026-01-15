@@ -1,5 +1,5 @@
 from sqlalchemy import select,exc,String,cast
-from models import metadata_obj,table
+from database.models import metadata_obj,table
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from datetime import datetime,timedelta
 from typing import List,Optional
@@ -62,16 +62,15 @@ async def is_user_exists(username:str) -> bool:
             raise exc.SQLAlchemyError("Error while executing")        
 
 async def create_user(user_id:str) -> bool:
-    if await is_user_exists(user_id):
-        return False 
     async with AsyncSession(async_engine) as conn:
         async with conn.begin():
             try:
                 stmt = table.insert().values(
-                    username = user_id,
+                    username = cast(user_id,String),
                     sub = False
                 )
                 await conn.execute(stmt)
+                return True
             except exc.SQLAlchemyError:
                 raise exc.SQLAlchemyError("Error while executing")
 
