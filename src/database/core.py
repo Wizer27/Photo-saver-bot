@@ -1,5 +1,5 @@
-from sqlalchemy import select,exc 
-from database.models import metadata_obj,table
+from sqlalchemy import select,exc,String,cast
+from models import metadata_obj,table
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from datetime import datetime,timedelta
 from typing import List,Optional
@@ -36,6 +36,10 @@ async def create_table():
     async with async_engine.begin() as conn:
         await conn.run_sync(metadata_obj.create_all)
 
+async def drop_table():
+    async with async_engine.begin() as conn:
+        await conn.run_sync(metadata_obj.drop_all)        
+
 async def get_all_data() -> List:
     async with AsyncSession(async_engine) as conn:
         try:
@@ -48,11 +52,11 @@ async def get_all_data() -> List:
 async def is_user_exists(username:str) -> bool:
     async with AsyncSession(async_engine) as conn:
         try:
-            stmt = select(table.c.username).where(table.c.username == username)
+            stmt = select(table.c.username).where(table.c.username == cast(username,String))
             res = await conn.execute(stmt)
             data = res.scalar_one_or_none()
             if data is not None:
-                return data == username
+                return str(data) == username
             return False
         except exc.SQLAlchemyError:
             raise exc.SQLAlchemyError("Error while executing")        
@@ -94,7 +98,6 @@ async def is_user_subbed(username:str) -> bool:
             raise NameError("User not found") # поидеи никогда не произойдет 
         except exc.SQLAlchemyError as conn:
             raise exc.SQLAlchemyError("Error while executing")            
-
 
 
         
