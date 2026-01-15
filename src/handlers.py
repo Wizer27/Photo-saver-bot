@@ -9,6 +9,7 @@ from keyboards import main_keyborad
 router = Router()
 
 @router.message(CommandStart())
+@router.message(F.text == "Start")
 async def start_handler(message:Message):
     user_id = message.from_user.id
     user_ex = await is_user_exists(str(user_id))

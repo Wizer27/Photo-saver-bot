@@ -2,5 +2,6 @@ from aiogram.types import ReplyKeyboardMarkup,KeyboardButton,InlineKeyboardButto
 
 
 main_keyborad = ReplyKeyboardMarkup(keyboard =  [
-    [KeyboardButton(text = "Profile"),KeyboardButton(text = "My files")]
+    [KeyboardButton(text = "Profile"),KeyboardButton(text = "My files")],
+    [KeyboardButton(text = "Start")]
 ])
