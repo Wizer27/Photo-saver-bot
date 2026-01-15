@@ -17,7 +17,9 @@ async def start_handler(message:Message):
         await create_user(str(user_id))
     await message.answer(f"Welcome {message.from_user.username}",reply_markup=main_keyborad)
     
-        
+@router.message(F.photo)
+async def safe_photo(messgae:str):
+    pass    
 
 @router.message(F.text == "Profile")
 async def profile_handler(message:Message):

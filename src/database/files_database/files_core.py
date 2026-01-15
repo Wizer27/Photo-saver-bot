@@ -60,7 +60,7 @@ async def create_file(username:str,file_name:str,fileid:str):
                 stmt = files_table.insert().values(
                     username = username,
                     filedata = fileid,
-                    filename = file_name
+                    #filename = file_name
                 )
                 await conn.execute(stmt)
             except exc.SQLAlchemyError:
@@ -78,17 +78,18 @@ async def delete_file(file_id:str) -> bool:
             except exc.SQLAlchemyError:
                 raise exc.SQLAlchemyError("Error while executing")
 
-async def get_user_files(username:str) -> dict:
+async def get_user_files(username:str) -> List[str]:
     async with AsyncSession(async_engine) as conn:
         try:
-            stmt = select(files_table.c.filename,files_table.c.filedata).where(files_table.c.username == username)
+            stmt = select(files_table.c.filedata).where(files_table.c.username == username)
             res = await conn.execute(stmt)
             data = res.fetchall()
-            result = {}
-            for row in data:
-                result[row[0]] = row[1]
-            return result    
+            result:List[str] = []
+            for dt in data:
+                result.append(str(dt[0]))
+            return result
         except exc.SQLAlchemyError:
             raise exc.SQLAlchemyError("Error while executing")
+        
                     
 #asyncio.run(create_file("user1","test.txt","some_file_data_textfjkljfkldsfjkls"))

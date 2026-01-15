@@ -7,5 +7,5 @@ files_table = Table(
     metadata_obj,
     Column("username",String),
     Column("filedata",String),
-    Column("filename",String)
+    #Column("filename",String)
 )
