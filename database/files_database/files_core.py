@@ -14,7 +14,7 @@ import uuid
 load_dotenv()
 
 async_engine = create_async_engine(
-    f"postgresql+asyncpg://{os.getenv("DB_USER")}:{os.getenv("DB_PASSWORD")}@localhost:5432/photo_saver_def",
+    f"postgresql+asyncpg://{os.getenv("DB_USER")}:{os.getenv("DB_PASSWORD")}@localhost:5432/photo_saver",
     pool_size=20,           
     max_overflow=50,       
     pool_recycle=3600,      
@@ -77,3 +77,18 @@ async def delete_file(file_id:str) -> bool:
                 return True
             except exc.SQLAlchemyError:
                 raise exc.SQLAlchemyError("Error while executing")
+
+async def get_user_files(username:str) -> dict:
+    async with AsyncSession(async_engine) as conn:
+        try:
+            stmt = select(files_table.c.filename,files_table.c.filedata).where(files_table.c.username == username)
+            res = await conn.execute(stmt)
+            data = res.fetchall()
+            result = {}
+            for row in data:
+                result[row[0]] = row[1]
+            return result    
+        except exc.SQLAlchemyError:
+            raise exc.SQLAlchemyError("Error while executing")
+                    
+#asyncio.run(create_file("user1","test.txt","some_file_data_textfjkljfkldsfjkls"))
